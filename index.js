@@ -1,7 +1,11 @@
-const express = require('express')
-const path = require('path')
-const PORT = process.env.PORT || 5000
-const app = express()
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const PORT = process.env.PORT || 5000;
+const app = express();
+
+//Middleware
+app.use(cors());
 
 // ROUTES
 
@@ -10,4 +14,4 @@ app.get('/', (req,res) =>{
 });
 
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+app.listen(PORT, () => console.log(`Listening on ${ PORT }`));

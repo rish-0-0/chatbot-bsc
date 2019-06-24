@@ -6,7 +6,7 @@ npm-debug.log
 # *.env
 *.dev
 .DS_Stores
-bsc-ceasaf-d42198239597.json
+# bsc-ceasaf-d42198239597.json
 
 # Docker
 Dockerfile

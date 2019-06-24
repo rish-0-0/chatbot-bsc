@@ -3,9 +3,10 @@ node_modules
 npm-debug.log
 
 # Local development
-*.env
+# *.env
 *.dev
-.DS_Store
+.DS_Stores
+bsc-ceasaf-d42198239597.json
 
 # Docker
 Dockerfile

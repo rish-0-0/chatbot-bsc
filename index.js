@@ -8,6 +8,11 @@ const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+//Middleware
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
+
 // Imports the Google Cloud client library.
 // const {Storage} = require('@google-cloud/storage');
 
@@ -43,10 +48,7 @@ const sessionPath = sessionClient.sessionPath(projectAuth, sessionId);
 
 
 
-//Middleware
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true}));
-app.use(bodyParser.json());
+
 
 // ROUTES
 

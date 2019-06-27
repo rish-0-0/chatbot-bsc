@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const app = express();
+let languageNeeded = "hi-IN";
 
 //Middleware
 app.use(function(req, res, next) {
@@ -57,7 +58,7 @@ const sessionPath = sessionClient.sessionPath(projectAuth, sessionId);
 // ROUTES
 
 app.get('/', (req,res) =>{
-  res.send('Why hello there');
+  res.send('क्या आप हिंदी या अंग्रेजी में बात करना चाहेंगे?');
 });
 
 app.post('/chat', (req,res) => {
@@ -76,7 +77,7 @@ app.post('/chat', (req,res) => {
       queryInput: {
         text: {
           text: input,
-          languageCode: 'hi-IN',
+          languageCode: languageNeeded,
         },
       },
     };
@@ -85,19 +86,40 @@ app.post('/chat', (req,res) => {
     console.log('Detected Intent');
 
     const result = responses[0].queryResult;
-    // console.log(result);
+    console.log("RESULT\n",result);
     console.log(`Query: ${result.queryText}`);
     console.log(`Response: ${result.fulfillmentText}`);
     output = result.fulfillmentText;
     console.log(`Intent Matched ${result.intent.displayName}`);
+    switch(result.intent.displayName) {
+      case 'detectLanguage':
+        console.log("LANGUAGE CHANGING");
+        const language = result.parameters.fields.language.stringValue;
+        console.log('diff',language==="अंग्रेज़ी",languageNeeded);
+        if((languageNeeded==="hi-IN")&&(language==="अंग्रेज़ी" || language==="इंग्लिश" || language === "अंग्रेजी")) {
+          
+          languageNeeded= "en";
+          console.log("LANGUAGE CHANGE TO: ",languageNeeded);
+        } else if((languageNeeded=="en" || languageNeeded.toLowerCase()==="english")&&(language.toLowerCase()==="hindi")) {
+          languageNeeded = "hi-IN";
+          console.log("LANGUAGE CHANGE TO: ",languageNeeded);
+        }
+      default:
+        output=output;
+    }
     // Get the response ready
     const emotion = output.slice(-2);
     console.log('emoji',emotion);
     output = output.slice(0,-2);
-    const response = {
+    let response = {
       'output': output,
       'emotion' : emotion,
+      'languageCode': languageNeeded,
     };
+    // Additional changes
+    if(response.languageCode==='en') {
+      response.languageCode = 'en-US';
+    }
     // Send the response
     res.send(response);  
   }

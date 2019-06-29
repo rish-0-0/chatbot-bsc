@@ -7,16 +7,26 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const app = express();
+//MiddleWare
+const whitelist = ['https://speaking-chatting.netlify.com/','http://localhost:3000'];
+var corsOptions = {
+  origin: function(origin,callback) {
+    if(whitelist.indexOf(origin) !== -1) {
+      callback(null,true);
+    } else {
+      callback(new Error('Not Allowed By CORS Policy'));
+    }
+  }
+};
+app.use(cors(corsOptions));
 let languageNeeded = "hi-IN";
 
-//Middleware
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-app.use(bodyParser.urlencoded({ extended: true}));
+
+
+
 app.use(bodyParser.json());
+
+app.use(bodyParser.urlencoded({ extended: true}));
 
 // Imports the Google Cloud client library.
 // const {Storage} = require('@google-cloud/storage');
@@ -86,7 +96,7 @@ app.post('/chat', (req,res) => {
     console.log('Detected Intent');
 
     const result = responses[0].queryResult;
-    console.log("RESULT\n",result);
+    // console.log("RESULT\n",result);
     console.log(`Query: ${result.queryText}`);
     console.log(`Response: ${result.fulfillmentText}`);
     output = result.fulfillmentText;
@@ -95,8 +105,8 @@ app.post('/chat', (req,res) => {
       case 'detectLanguage':
         console.log("LANGUAGE CHANGING");
         const language = result.parameters.fields.language.stringValue;
-        console.log('diff',language==="अंग्रेज़ी",languageNeeded);
-        if((languageNeeded==="hi-IN")&&(language==="अंग्रेज़ी" || language==="इंग्लिश" || language === "अंग्रेजी")) {
+        console.log('diff',language,language==="अंग्रेज़ी",languageNeeded);
+        if((languageNeeded==="hi-IN")&&(language==="अंग्रेज़ी" || language==="इंग्लिश" || language === "अंग्रेजी" || language==="English")) {
           
           languageNeeded= "en";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);

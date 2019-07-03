@@ -28,15 +28,7 @@ app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: true}));
 
-// Imports the Google Cloud client library.
-// const {Storage} = require('@google-cloud/storage');
-
-// Instantiates a client. Explicitly use service account credentials by
-// specifying the private key file. All clients in google-cloud-node have this
-// helper, see https://github.com/GoogleCloudPlaatform/google-cloud-node/blob/master/docs/authentication.md
-// const projectId = 'bsc-vugyay';
 const keyFilename = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-console.log("keyfile",keyFilename);
 
 const sessionId = uuid.v4();
 
@@ -78,10 +70,8 @@ app.post('/chat', (req,res) => {
   const input = req.body.text;
   var output;
   // Do any calculations, with the dialogflow or whatever just hardcode
-  // Like I did with the -from the other side, bro
   async function runSample(projectId = projectAuth) {
-    
-    console.log(sessionPath,'input',input);
+    // PREPARE THE REQUEST
     const request = {
       session: sessionPath,
       queryInput: {
@@ -96,21 +86,25 @@ app.post('/chat', (req,res) => {
     console.log('Detected Intent');
 
     const result = responses[0].queryResult;
-    // console.log("RESULT\n",result);
+    // console.log('result');
+    // QUERY
     console.log(`Query: ${result.queryText}`);
+    // RESPONSE
     console.log(`Response: ${result.fulfillmentText}`);
+    // STORE THE RESPONSE
     output = result.fulfillmentText;
+    // INTENT MATCHED
     console.log(`Intent Matched ${result.intent.displayName}`);
+    // SPECIAL CONTROLS WITH CERTAIN INTENTS USING SWITCH CASE
     switch(result.intent.displayName) {
       case 'detectLanguage':
         console.log("LANGUAGE CHANGING");
+        // Detect the language for stuff
         const language = result.parameters.fields.language.stringValue;
-        console.log('diff',language,language==="अंग्रेज़ी",languageNeeded);
         if((languageNeeded==="hi-IN")&&(language==="अंग्रेज़ी" || language==="इंग्लिश" || language === "अंग्रेजी" || language==="English")) {
-          
           languageNeeded= "en";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);
-        } else if((languageNeeded=="en" || languageNeeded.toLowerCase()==="english")&&(language.toLowerCase()==="hindi")) {
+        } else if((languageNeeded=="en") && (language.toLowerCase()==="hindi")) {
           languageNeeded = "hi-IN";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);
         }
@@ -118,9 +112,13 @@ app.post('/chat', (req,res) => {
         output=output;
     }
     // Get the response ready
-    const emotion = output.slice(-2);
-    console.log('emoji',emotion);
-    output = output.slice(0,-2);
+    // SET THE EMOTION
+    
+    var emotion = '😌';
+    if(result.fulfillmentMessages[1] && result.fulfillmentMessages[1].payload) {
+      console.log(result.fulfillmentMessages[1].payload.fields);
+      emotion = result.fulfillmentMessages[1].payload.fields.emoji.stringValue;
+    }
     let response = {
       'output': output,
       'emotion' : emotion,
@@ -135,7 +133,7 @@ app.post('/chat', (req,res) => {
   }
   runSample()
   .catch(e => {
-    console.log(`Error `,e);
+    console.log(`Error ocurred while receiving and sending on dialogflow \n`,e);
   });
   
 });

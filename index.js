@@ -8,17 +8,14 @@ const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const app = express();
 //MiddleWare
-const whitelist = ['https://speaking-chatting.netlify.com/','http://localhost:3000'];
-var corsOptions = {
-  origin: function(origin,callback) {
-    if(whitelist.indexOf(origin) !== -1) {
-      callback(null,true);
-    } else {
-      callback(new Error('Not Allowed By CORS Policy'));
-    }
-  }
-};
-app.use(cors(corsOptions));
+// const whitelist = ['https://speaking-chatting.netlify.com/','http://localhost:3000'];
+
+app.use(cors());
+app.use((req,res,next) => {
+  res.header('Access-Control-Allow-Origin','*');
+  next();
+});
+
 let languageNeeded = "hi-IN";
 
 
@@ -83,7 +80,7 @@ app.post('/chat', (req,res) => {
     };
 
     const responses = await sessionClient.detectIntent(request);
-    console.log('Detected Intent');
+    console.log('Result Received');
 
     const result = responses[0].queryResult;
     // console.log('result');

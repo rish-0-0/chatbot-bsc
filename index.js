@@ -50,9 +50,12 @@ const sessionPath = sessionClient.sessionPath(projectAuth, sessionId);
 //   console.error("Bro: ",err);
 // });
 
-
-
-
+const admin = require('firebase-admin');
+let serviceAccount = require("./fbpass.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+let db = admin.firestore();
 
 // ROUTES
 
@@ -65,6 +68,14 @@ app.post('/chat', (req,res) => {
   // Get the input 
 
   const input = req.body.text;
+  
+  let docRef = db.collection('Questions').doc();
+  let data = {
+	Text: input,
+	date: new Date()
+  }
+  let setQ = docRef.set(data);
+  
   var output;
   // Do any calculations, with the dialogflow or whatever just hardcode
   async function runSample(projectId = projectAuth) {

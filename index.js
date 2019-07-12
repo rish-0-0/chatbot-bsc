@@ -58,7 +58,7 @@ const sessionPath = sessionClient.sessionPath(projectAuth, sessionId);
 // });
 
 const admin = require('firebase-admin');
-let serviceAccount = require("./fbpass.json");
+let serviceAccount = require('./fbpass.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -82,6 +82,8 @@ app.post('/chat', (req,res) => {
 	date: new Date()
   }
   let setQ = docRef.set(data);
+  
+  
   var emotion = '😃';
   var output;
   // Do any calculations, with the dialogflow or whatever just hardcode
@@ -100,7 +102,6 @@ app.post('/chat', (req,res) => {
     const responses = await sessionClient.detectIntent(request);
     console.log('Result Received');
 	console.log(responses);
-	var rflag = 0;
     const result = responses[0].queryResult;
     // console.log('result');
     // QUERY
@@ -112,7 +113,10 @@ app.post('/chat', (req,res) => {
     // INTENT MATCHED
     console.log(`Intent Matched ${result.intent.displayName}`);
     // SPECIAL CONTROLS WITH CERTAIN INTENTS USING SWITCH CASE
-    switch(result.intent.displayName) {
+	var arr = result.intent.displayName.split(".");
+    console.log(arr);
+	console.log(arr[0]);
+	switch(arr[0]) {
       case 'detectLanguage':
         console.log("LANGUAGE CHANGING");
         // Detect the language for stuff
@@ -120,74 +124,146 @@ app.post('/chat', (req,res) => {
         if((languageNeeded==="hi-IN")&&(language==="अंग्रेज़ी" || language==="इंग्लिश" || language === "अंग्रेजी" || language==="English")) {
           languageNeeded= "en";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);
+		  		let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);
         } else if((languageNeeded=="en") && (language.toLowerCase()==="hindi")) {
           languageNeeded = "hi-IN";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);
+		  		let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);
         }break;
 		
-	  /*case 'Weather':
-		console.log("open weather map api call");
-		var place = 'pilani';
-		if(result.parameters['geo-city'])
-			place = result.parameters['geo-city'];
-		weather.setLang("en");
-		weather.setCity(place);
-		weather.getSmartJSON((err,smart) => {
-			output = "The temperature is " + smart.temp;
-			emotion = '⚡';
-			let response = {
-				'output': output,
-				'emotion' : emotion,
-				'languageCode': languageNeeded,
-			};
-			if(response.languageCode==='en')
-				response.languageCode = 'en-US';
-			rflag = 1;
-			res.send(response); 
-			//output = smart.temp;
-		});*/
-		/*
-		weather.getSmartJSON( function(err, smart){
-			output = "The temperature is " + smart.temp;
-			emotion = '⚡';
-			let response = {
-				'output': output,
-				'emotion' : emotion,
-				'languageCode': languageNeeded,
-			};
-			if(response.languageCode==='en')
-				response.languageCode = 'en-US';
-			rflag = 1;
-			res.send(response); 
-		}); 
-		*/
-		
+	  case 'Weather' : 
+			console.log("Weather switch case");
+			weather.setLang('en');
+			console.log(output);
+			if(!output)
+				weather.setCity('Pilani');
+			else
+				weather.setCity('' + output);
+			
+			weather.getSmartJSON((err,smart) => {
+				console.log(smart);
+				output = "Here: " + output + " ,The Temperature is " + Math.floor(smart.temp) + " degree celcius";
+				output = output + ",Humidity is " + smart.humidity + " percent ";
+				output = output + ",Pressure is " + Math.floor(smart.pressure) + " milli bar";
+				output = output + ", There is " + smart.description;
+				if(smart.rain === 0)
+					output = output + " ,There is no rain.";
+				else
+					output = output + " , rain is " + smart.rain + " millimeters";
+				
+		  		let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);				
+				
+			});
 		break;
+	  
+	  case 'Museum' :
+		console.log("Switch case reached");
+		console.log(output,"vsvs",arr[1]);
+		var param = "" + arr[1];
+		console.log("APSDPASDPASD",param);
+		db.collection("Museum").doc(""+output).get().then(function(doc) {
+			if (doc.exists) {
+				output = doc.data()[param];
+				let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);
+				
+			} else {
+				// doc.data() will be undefined in this case
+				output = "No such document!";
+				let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);
+				
+			}
+		}).catch(function(error) {
+			output = "Error getting document:" + error;
+					let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				// Additional changes
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				res.send(response);
+			
+		});
+		break;
+
 		
 			
       default:
-        output=output;
-    }
-    // Get the response ready
-    // SET THE EMOTION
+        // Get the response ready
+		// SET THE EMOTION
     
-
-    if(result.fulfillmentMessages[1] && result.fulfillmentMessages[1].payload) {
-      console.log(result.fulfillmentMessages[1].payload.fields);
-      emotion = result.fulfillmentMessages[1].payload.fields.emoji.stringValue;
-    }
-    let response = {
-      'output': output,
-      'emotion' : emotion,
-      'languageCode': languageNeeded,
-    };
-    // Additional changes
-    if(response.languageCode==='en') {
-      response.languageCode = 'en-US';
-    }
-    // Send the response
+		console.log("final " + output);
+		if(result.fulfillmentMessages[1] && result.fulfillmentMessages[1].payload) {
+			console.log(result.fulfillmentMessages[1].payload.fields);
+			emotion = result.fulfillmentMessages[1].payload.fields.emoji.stringValue;
+		}
+		let response = {
+			'output': output,
+			'emotion' : emotion,
+			'languageCode': languageNeeded,
+		};
+		// Additional changes
+		if(response.languageCode==='en') {
+		response.languageCode = 'en-US';
+		}
+		// Send the response
 		res.send(response);  
 	
+    }
+
 	
   }
   runSample()

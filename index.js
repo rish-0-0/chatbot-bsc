@@ -7,6 +7,13 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const app = express();
+
+var weather = require('openweather-apis');
+weather.setUnits('metric');
+weather.setAPPID('ef76217223dab864159b3109b16d7fa0');
+
+
+
 //MiddleWare
 // const whitelist = ['https://speaking-chatting.netlify.com/','http://localhost:3000'];
 
@@ -75,7 +82,7 @@ app.post('/chat', (req,res) => {
 	date: new Date()
   }
   let setQ = docRef.set(data);
-  
+  var emotion = '😃';
   var output;
   // Do any calculations, with the dialogflow or whatever just hardcode
   async function runSample(projectId = projectAuth) {
@@ -92,7 +99,8 @@ app.post('/chat', (req,res) => {
 
     const responses = await sessionClient.detectIntent(request);
     console.log('Result Received');
-
+	console.log(responses);
+	var rflag = 0;
     const result = responses[0].queryResult;
     // console.log('result');
     // QUERY
@@ -115,14 +123,55 @@ app.post('/chat', (req,res) => {
         } else if((languageNeeded=="en") && (language.toLowerCase()==="hindi")) {
           languageNeeded = "hi-IN";
           console.log("LANGUAGE CHANGE TO: ",languageNeeded);
-        }
+        }break;
+		
+	  /*case 'Weather':
+		console.log("open weather map api call");
+		var place = 'pilani';
+		if(result.parameters['geo-city'])
+			place = result.parameters['geo-city'];
+		weather.setLang("en");
+		weather.setCity(place);
+		weather.getSmartJSON((err,smart) => {
+			output = "The temperature is " + smart.temp;
+			emotion = '⚡';
+			let response = {
+				'output': output,
+				'emotion' : emotion,
+				'languageCode': languageNeeded,
+			};
+			if(response.languageCode==='en')
+				response.languageCode = 'en-US';
+			rflag = 1;
+			res.send(response); 
+			//output = smart.temp;
+		});*/
+		/*
+		weather.getSmartJSON( function(err, smart){
+			output = "The temperature is " + smart.temp;
+			emotion = '⚡';
+			let response = {
+				'output': output,
+				'emotion' : emotion,
+				'languageCode': languageNeeded,
+			};
+			if(response.languageCode==='en')
+				response.languageCode = 'en-US';
+			rflag = 1;
+			res.send(response); 
+		}); 
+		*/
+		
+		break;
+		
+			
       default:
         output=output;
     }
     // Get the response ready
     // SET THE EMOTION
     
-    var emotion = '😌';
+
     if(result.fulfillmentMessages[1] && result.fulfillmentMessages[1].payload) {
       console.log(result.fulfillmentMessages[1].payload.fields);
       emotion = result.fulfillmentMessages[1].payload.fields.emoji.stringValue;
@@ -137,7 +186,9 @@ app.post('/chat', (req,res) => {
       response.languageCode = 'en-US';
     }
     // Send the response
-    res.send(response);  
+		res.send(response);  
+	
+	
   }
   runSample()
   .catch(e => {

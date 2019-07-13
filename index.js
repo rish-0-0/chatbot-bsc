@@ -68,12 +68,12 @@ let db = admin.firestore();
 
 app.get('/', (req,res) =>{
 	let response = {
-		text : "क्या आप हिंदी या अंग्रेजी में बात करना चाहेंगे?",
-		languageCode:languageNeeded,		
+		'text' : "क्या आप हिंदी या अंग्रेजी में बात करना चाहेंगे?",
+		'languageCode':languageNeeded,		
 	};
 	if(languageNeeded==="en") {
-		response.text = "Would you like to talk in English or Hindi?";
-		response.languageCode = "en-US";
+		response['text'] = "Would you like to talk in English or Hindi?";
+		response['languageCode'] = "en-US";
 	}
 	
   res.send(response);

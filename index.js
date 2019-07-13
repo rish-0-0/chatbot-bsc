@@ -136,6 +136,7 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);
 				res.send(response);
         } else if((languageNeeded=="en") && (language.toLowerCase()==="hindi")) {
           languageNeeded = "hi-IN";
@@ -150,8 +151,11 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);
 				res.send(response);
-        }break;
+        }
+		
+		break;
 		
 	  case 'Weather' : 
 			console.log("Weather switch case");
@@ -183,6 +187,7 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);
 				res.send(response);				
 				
 			});
@@ -196,6 +201,8 @@ app.post('/chat', (req,res) => {
 		console.log(output,"vsvs",arr[1]);
 		var param = "" + arr[1];
 		console.log("APSDPASDPASD",param);
+		if(!output)
+			output = 'Pilani Gallery';
 		db.collection(""+arr[0]).doc(""+output).get().then(function(doc) {
 			if (doc.exists) {
 				output = doc.data()[param];
@@ -209,6 +216,7 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);
 				res.send(response);
 				
 			} else {
@@ -224,6 +232,7 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);				
 				res.send(response);
 				
 			}
@@ -239,6 +248,7 @@ app.post('/chat', (req,res) => {
 					response.languageCode = 'en-US';
 				}
 				// Send the response
+				console.log(response);				
 				res.send(response);
 			
 		});
@@ -265,6 +275,7 @@ app.post('/chat', (req,res) => {
 		response.languageCode = 'en-US';
 		}
 		// Send the response
+		console.log(response);		
 		res.send(response);  
 	
     }

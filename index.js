@@ -70,9 +70,11 @@ app.get('/', (req,res) =>{
   res.send('क्या आप हिंदी या अंग्रेजी में बात करना चाहेंगे?');
 });
 
+
 app.post('/chat', (req,res) => {
 
   // Get the input 
+
 
   const input = req.body.text;
   
@@ -186,12 +188,15 @@ app.post('/chat', (req,res) => {
 			});
 		break;
 	  
-	  case 'Museum' :
+	  case 'एक्ज़िबिट':
+	  case 'संग्रहालय':
+	  case 'Exhibit':
+	  case 'Museum':
 		console.log("Switch case reached");
 		console.log(output,"vsvs",arr[1]);
 		var param = "" + arr[1];
 		console.log("APSDPASDPASD",param);
-		db.collection("Museum").doc(""+output).get().then(function(doc) {
+		db.collection(""+arr[0]).doc(""+output).get().then(function(doc) {
 			if (doc.exists) {
 				output = doc.data()[param];
 				let response = {

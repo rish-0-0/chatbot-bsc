@@ -154,6 +154,20 @@ app.post('/chat', (req,res) => {
 				console.log(response);
 				res.send(response);
         }
+		else {
+			let response = {
+					'output': output,
+					'emotion' : emotion,
+					'languageCode': languageNeeded,
+				};
+				
+				if(response.languageCode==='en') {
+					response.languageCode = 'en-US';
+				}
+				// Send the response
+				console.log(response);
+				res.send(response);
+		}
 		
 		break;
 		

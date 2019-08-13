@@ -1,0 +1,17 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+
+# Local development
+*.env
+*.dev
+.DS_Stores
+bsc-ceasaf-d42198239597.json
+Weather-pass.json
+Maxwell-f8905b0a2c1c.json
+fbpass.json
+app.json
+
+# Docker
+Dockerfile
+docker-compose.yml
